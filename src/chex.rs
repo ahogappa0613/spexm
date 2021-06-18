@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use std::fmt::Display;
+use std::fmt::{self, Display, Formatter};
 use std::ops::{BitAnd, BitOr, Not};
 
 use crate::token::Token;
@@ -88,7 +88,7 @@ impl Chex {
         }
     }
 
-    pub fn include(&self, other: Self) -> bool {
+    pub fn include(&self, other: &Self) -> bool {
         match self.kind {
             Kind::Blank => false,
             Kind::Whole => true,
@@ -99,7 +99,7 @@ impl Chex {
                     if self.include_flg && !other.include_flg {
                         false
                     } else {
-                        (!self & other).blank()
+                        (&!self & other).blank()
                     }
                 }
             },
@@ -107,29 +107,12 @@ impl Chex {
     }
 }
 
-// impl Display for Chex {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         if let Some(ref str) = self.str {
-//             f.write_str(&format!("{}", str))?;
-//             Ok(())
-//         } else {
-//             match self.kind {
-//                 0 => self.str = Some(format!("{}{}", Token::CH_S.value(), Token::CH_E.value())),
-//                 1 => {}
-//                 2 => {}
-//                 _ => unreachable!(),
-//             }
-//             Ok(())
-//         }
-//         // if self.str == None {
-//         //     Ok(())
-//         // } else {
-//         //     let hoge = self.str.unwrap();
-//         //     f.write_str(&format!("{}", ""))?;
-//         //     return Ok(());
-//         // }
-//     }
-// }
+impl Display for Chex {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.write_str(&format!("{}", self.str))?;
+        Ok(())
+    }
+}
 
 impl Not for &Chex {
     type Output = Chex;
@@ -160,38 +143,38 @@ impl PartialEq for Chex {
     }
 }
 
-impl BitOr for Chex {
-    type Output = Self;
+impl BitOr for &Chex {
+    type Output = Chex;
 
     fn bitor(self, other: Self) -> Self::Output {
         match self.kind {
-            Kind::Blank => other,
-            Kind::Whole => self,
+            Kind::Blank => other.clone(),
+            Kind::Whole => self.clone(),
             Kind::Other => match other.kind {
-                Kind::Blank => self,
-                Kind::Whole => other,
+                Kind::Blank => self.clone(),
+                Kind::Whole => other.clone(),
                 Kind::Other => {
                     if self.include_flg {
                         if other.include_flg {
                             let chars = self.char_set.union(&other.char_set).cloned().collect();
-                            return Self::new(chars, true);
+                            return Chex::new(chars, true);
                         } else {
                             let chars =
                                 other.char_set.difference(&self.char_set).cloned().collect();
-                            return Self::new(chars, false);
+                            return Chex::new(chars, false);
                         }
                     } else {
                         if other.include_flg {
                             let chars =
                                 self.char_set.difference(&other.char_set).cloned().collect();
-                            return Self::new(chars, false);
+                            return Chex::new(chars, false);
                         } else {
                             let chars = self
                                 .char_set
                                 .intersection(&other.char_set)
                                 .cloned()
                                 .collect();
-                            return Self::new(chars, true);
+                            return Chex::new(chars, true);
                         }
                     }
                 }
@@ -200,16 +183,16 @@ impl BitOr for Chex {
     }
 }
 
-impl BitAnd for Chex {
-    type Output = Self;
+impl BitAnd for &Chex {
+    type Output = Chex;
 
     fn bitand(self, other: Self) -> Self::Output {
         match self.kind {
-            Kind::Blank => self,
-            Kind::Whole => other,
+            Kind::Blank => self.clone(),
+            Kind::Whole => other.clone(),
             Kind::Other => match other.kind {
-                Kind::Blank => other,
-                Kind::Whole => self,
+                Kind::Blank => other.clone(),
+                Kind::Whole => self.clone(),
                 Kind::Other => {
                     if self.include_flg {
                         if other.include_flg {
@@ -218,20 +201,20 @@ impl BitAnd for Chex {
                                 .intersection(&other.char_set)
                                 .cloned()
                                 .collect();
-                            return Self::new(chars, true);
+                            return Chex::new(chars, true);
                         } else {
                             let chars =
                                 self.char_set.difference(&other.char_set).cloned().collect();
-                            return Self::new(chars, true);
+                            return Chex::new(chars, true);
                         }
                     } else {
                         if other.include_flg {
                             let chars =
                                 other.char_set.difference(&self.char_set).cloned().collect();
-                            return Self::new(chars, true);
+                            return Chex::new(chars, true);
                         } else {
                             let chars = other.char_set.union(&self.char_set).cloned().collect();
-                            return Self::new(chars, false);
+                            return Chex::new(chars, false);
                         }
                     }
                 }
@@ -241,7 +224,6 @@ impl BitAnd for Chex {
 }
 
 #[cfg(test)]
-
 mod chex_tests {
     use super::*;
 
@@ -283,29 +265,29 @@ mod chex_tests {
 
     #[test]
     fn intersection_chex() {
-        let a = Chex::new(vec!['a', 'c', 'b'], true);
-        let b = Chex::new(vec!['a', 'd', 'b'], true);
+        let ref a = Chex::new(vec!['a', 'c', 'b'], true);
+        let ref b = Chex::new(vec!['a', 'd', 'b'], true);
         assert_eq!("[ab]", (a & b).str);
     }
 
     #[test]
     fn union_chex() {
-        let a = Chex::new(vec!['a', 'c', 'b'], true);
-        let b = Chex::new(vec!['a', 'd'], true);
+        let ref a = Chex::new(vec!['a', 'c', 'b'], true);
+        let ref b = Chex::new(vec!['a', 'd'], true);
         assert_eq!("[abcd]", (a | b).str);
     }
 
     #[test]
     fn not_intersection_chex() {
-        let a = Chex::new(vec!['a'], false);
-        let b = Chex::new(vec!['a', 'd', 'b'], true);
+        let ref a = Chex::new(vec!['a'], false);
+        let ref b = Chex::new(vec!['a', 'd', 'b'], true);
         assert_eq!("[bd]", (a & b).str);
     }
 
     #[test]
     fn not_union_chex() {
-        let a = Chex::new(vec!['a', 'c', 'b'], false);
-        let b = Chex::new(vec!['a', 'd'], true);
+        let ref a = Chex::new(vec!['a', 'c', 'b'], false);
+        let ref b = Chex::new(vec!['a', 'd'], true);
         assert_eq!("[^bc]", (a | b).str);
     }
 }

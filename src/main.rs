@@ -4,6 +4,9 @@ pub mod token;
 
 use chex::Chex;
 
+use crate::spex::Spex;
+
 fn main() {
-    println!("{:#?}", Chex::new(vec!['a', 'b', 'f', 'c'], false));
+    Spex::new_blank().mermaid();
+    println!("{:#?}", Spex::new_blank());
 }
