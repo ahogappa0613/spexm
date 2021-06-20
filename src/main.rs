@@ -1,12 +1,12 @@
 pub mod chex;
+pub mod parser;
 pub mod spex;
 pub mod token;
 
 use chex::Chex;
 
-use crate::spex::Spex;
+use crate::{parser::parse, parser::tokenize, spex::Spex};
 
 fn main() {
-    Spex::new_blank().mermaid();
-    println!("{:#?}", Spex::new_blank());
+    println!("{:#?}", parse(&tokenize("(abc|def|ghi)")));
 }

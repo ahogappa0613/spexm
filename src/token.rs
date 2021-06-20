@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub enum Token {
     SP_S, // 文字列集合_開始
     SP_E, // 文字列集合_終了
@@ -13,19 +14,34 @@ pub enum Token {
 }
 
 impl Token {
-    pub fn value<'a>(&self) -> &'a str {
+    pub fn value(&self) -> char {
         match self {
-            Token::SP_S => "(",
-            Token::SP_E => ")",
-            Token::AND => "&",
-            Token::OR => "|",
-            Token::INVT => "!",
-            Token::REPT => "+",
-            Token::CH_S => "[",
-            Token::CH_E => "]",
-            Token::WHOL => ".",
-            Token::DENY => "^",
-            Token::ESC => "\\",
+            Token::SP_S => '(',
+            Token::SP_E => ')',
+            Token::AND => '&',
+            Token::OR => '|',
+            Token::INVT => '!',
+            Token::REPT => '+',
+            Token::CH_S => '[',
+            Token::CH_E => ']',
+            Token::WHOL => '.',
+            Token::DENY => '^',
+            Token::ESC => '\\',
         }
+    }
+
+    pub fn escapes<'a>() -> [char; 10] {
+        [
+            Token::AND.value(),
+            Token::OR.value(),
+            Token::INVT.value(),
+            Token::CH_S.value(),
+            Token::CH_E.value(),
+            Token::WHOL.value(),
+            Token::DENY.value(),
+            Token::REPT.value(),
+            Token::SP_S.value(),
+            Token::SP_E.value(),
+        ]
     }
 }

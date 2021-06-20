@@ -45,14 +45,22 @@ impl Chex {
                 if include_flg && len == 1 {
                     format!("{}", joind_chars)
                 } else {
-                    let prefix = if include_flg { "" } else { Token::DENY.value() };
-                    format!(
-                        "{}{}{}{}",
-                        Token::CH_S.value(),
-                        prefix,
-                        joind_chars,
-                        Token::CH_E.value()
-                    )
+                    if include_flg {
+                        format!(
+                            "{}{}{}",
+                            Token::CH_S.value(),
+                            joind_chars,
+                            Token::CH_E.value()
+                        )
+                    } else {
+                        format!(
+                            "{}{}{}{}",
+                            Token::CH_S.value(),
+                            Token::DENY.value(),
+                            joind_chars,
+                            Token::CH_E.value()
+                        )
+                    }
                 }
             }
         };
@@ -253,14 +261,14 @@ mod chex_tests {
 
     #[test]
     fn not_chex() {
-        let chex = Chex::new(vec!['a', 'c', 'b'], true);
-        assert_eq!("[^abc]", (!&chex).str);
+        let ref chex = Chex::new(vec!['a', 'c', 'b'], true);
+        assert_eq!("[^abc]", (!chex).str);
     }
 
     #[test]
     fn not_invert_chex() {
-        let invert_chex = Chex::new(vec!['a', 'c', 'b'], false);
-        assert_eq!("[abc]", (!&invert_chex).str);
+        let ref invert_chex = Chex::new(vec!['a', 'c', 'b'], false);
+        assert_eq!("[abc]", (!invert_chex).str);
     }
 
     #[test]
