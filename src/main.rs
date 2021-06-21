@@ -1,3 +1,4 @@
+pub mod builder;
 pub mod chex;
 pub mod parser;
 pub mod spex;
@@ -5,8 +6,8 @@ pub mod token;
 
 use chex::Chex;
 
-use crate::{parser::parse, parser::tokenize, spex::Spex};
+use crate::builder::spex;
 
 fn main() {
-    println!("{:#?}", parse(&tokenize("(abc|def|ghi)")));
+    println!("{:#?}", spex("((a[bc])+&!((ac)+))|a+").mermaid());
 }

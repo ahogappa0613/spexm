@@ -16,12 +16,12 @@ pub struct Chex {
     pub kind: Kind,
     pub len: usize,
     pub include_flg: bool, // falseなら補集合
-    pub char_set: HashSet<char>,
+    pub char_set: HashSet<String>,
     pub str: String,
 }
 
 impl Chex {
-    pub fn new(chars: Vec<char>, include_flg: bool) -> Self {
+    pub fn new(chars: Vec<String>, include_flg: bool) -> Self {
         let char_set = HashSet::from(chars.into_iter().collect());
         let len = char_set.len();
         let kind = if len == 0 {
@@ -38,7 +38,7 @@ impl Chex {
             Kind::Blank => format!("{}{}", Token::CH_S.value(), Token::CH_E.value()),
             Kind::Whole => format!("{}", Token::WHOL.value()),
             Kind::Other => {
-                let mut vec_char = char_set.clone().into_iter().collect::<Vec<char>>();
+                let mut vec_char = char_set.clone().into_iter().collect::<Vec<String>>();
                 vec_char.sort();
                 let joind_chars: String = vec_char.into_iter().collect();
 
@@ -249,53 +249,122 @@ mod chex_tests {
 
     #[test]
     fn chex() {
-        let chex = Chex::new(vec!['a', 'c', 'b'], true);
+        let chex = Chex::new(
+            vec!['a', 'c', 'b']
+                .iter_mut()
+                .map(|char| char.to_string())
+                .collect(),
+            true,
+        );
         assert_eq!("[abc]", chex.str);
     }
 
     #[test]
     fn invert_chex() {
-        let chex = Chex::new(vec!['a', 'c', 'b'], false);
+        let chex = Chex::new(
+            vec!['a', 'c', 'b']
+                .iter_mut()
+                .map(|char| char.to_string())
+                .collect(),
+            false,
+        );
         assert_eq!("[^abc]", chex.str);
     }
 
     #[test]
     fn not_chex() {
-        let ref chex = Chex::new(vec!['a', 'c', 'b'], true);
+        let ref chex = Chex::new(
+            vec!['a', 'c', 'b']
+                .iter_mut()
+                .map(|char| char.to_string())
+                .collect(),
+            true,
+        );
         assert_eq!("[^abc]", (!chex).str);
     }
 
     #[test]
     fn not_invert_chex() {
-        let ref invert_chex = Chex::new(vec!['a', 'c', 'b'], false);
+        let ref invert_chex = Chex::new(
+            vec!['a', 'c', 'b']
+                .iter_mut()
+                .map(|char| char.to_string())
+                .collect(),
+            false,
+        );
         assert_eq!("[abc]", (!invert_chex).str);
     }
 
     #[test]
     fn intersection_chex() {
-        let ref a = Chex::new(vec!['a', 'c', 'b'], true);
-        let ref b = Chex::new(vec!['a', 'd', 'b'], true);
+        let ref a = Chex::new(
+            vec!['a', 'c', 'b']
+                .iter_mut()
+                .map(|char| char.to_string())
+                .collect(),
+            true,
+        );
+        let ref b = Chex::new(
+            vec!['a', 'd', 'b']
+                .iter_mut()
+                .map(|char| char.to_string())
+                .collect(),
+            true,
+        );
         assert_eq!("[ab]", (a & b).str);
     }
 
     #[test]
     fn union_chex() {
-        let ref a = Chex::new(vec!['a', 'c', 'b'], true);
-        let ref b = Chex::new(vec!['a', 'd'], true);
+        let ref a = Chex::new(
+            vec!['a', 'c', 'b']
+                .iter_mut()
+                .map(|char| char.to_string())
+                .collect(),
+            true,
+        );
+        let ref b = Chex::new(
+            vec!['a', 'd']
+                .iter_mut()
+                .map(|char| char.to_string())
+                .collect(),
+            true,
+        );
         assert_eq!("[abcd]", (a | b).str);
     }
 
     #[test]
     fn not_intersection_chex() {
-        let ref a = Chex::new(vec!['a'], false);
-        let ref b = Chex::new(vec!['a', 'd', 'b'], true);
+        let ref a = Chex::new(
+            vec!['a'].iter_mut().map(|char| char.to_string()).collect(),
+            false,
+        );
+        let ref b = Chex::new(
+            vec!['a', 'd', 'b']
+                .iter_mut()
+                .map(|char| char.to_string())
+                .collect(),
+            true,
+        );
         assert_eq!("[bd]", (a & b).str);
     }
 
     #[test]
     fn not_union_chex() {
-        let ref a = Chex::new(vec!['a', 'c', 'b'], false);
-        let ref b = Chex::new(vec!['a', 'd'], true);
+        let ref a = Chex::new(
+            vec!['a', 'c', 'b']
+                .iter_mut()
+                .map(|char| char.to_string())
+                .collect(),
+            false,
+        );
+        let ref b = Chex::new(
+            vec!['a', 'd']
+                .iter_mut()
+                .map(|char| char.to_string())
+                .collect(),
+            true,
+        );
         assert_eq!("[^bc]", (a | b).str);
     }
 }
