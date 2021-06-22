@@ -170,7 +170,11 @@ impl Spex {
                 0 => ret += "    style 0 fill:#000,stroke-width:0px\n",
                 -1 => ret += "    style -1 fill:#adb5bd,stroke-width:0px\n",
                 -2 => ret += "    style -2 fill:#adb5bd,stroke:#dc3545,stroke-width:4px\n",
-                _ => ret += &format!("    style {} stroke:#dc3545,stroke-width:4px\n", sid),
+                _ => {
+                    if self.accepts_sids.contains(sid) {
+                        ret += &format!("    style {} stroke:#dc3545,stroke-width:4px\n", sid)
+                    }
+                }
             }
         }
 
@@ -370,7 +374,8 @@ impl Spex {
                 let mut vec_sid: Vec<Sid> = next_spex2_sids.clone().into_iter().collect();
                 vec_sid.sort();
                 format!(
-                    "{}/",
+                    "{}/{}",
+                    next_spex1_sid,
                     vec_sid
                         .iter()
                         .map(|x| x.to_string())
