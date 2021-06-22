@@ -154,8 +154,8 @@ impl Spex {
         Spex::new(new_tn_list, new_accepts_sids)
     }
 
-    pub fn mermaid(&self) {
-        let mut ret = String::from("graph LR\n");
+    pub fn mermaid(&self) -> String {
+        let mut ret = String::from("```mermaid\ngraph LR\n");
         for sid in self.tns_dict.keys() {
             match sid {
                 0 => ret += "    0(( ))\n",
@@ -180,7 +180,9 @@ impl Spex {
             }
         }
 
-        println!("{}", ret)
+        ret += "```";
+
+        ret
     }
 
     pub fn calc_and_or(

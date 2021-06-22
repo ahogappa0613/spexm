@@ -4,7 +4,7 @@ use crate::token;
 use crate::{parser::parse, parser::tokenize, parser::Node};
 
 pub fn spex(spex_str: impl Into<String>) -> Spex {
-    build_spex(parse(&tokenize("[^a]|..+")))
+    build_spex(parse(&tokenize(spex_str)))
 }
 
 pub fn build_spex(parsed: Node) -> Spex {
